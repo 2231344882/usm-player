@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>USM 播放器 · 原神过场动画</title>
+<link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">USM</div>
+    <div class="brand-text">
+      <h1>过场动画播放器</h1>
+      <span>纯前端 · WASM 解密 · 边下边播</span>
+    </div>
+  </div>
+  <span class="tag-chip" id="stat">加载中…</span>
+  <div class="top-actions">
+    <button class="btn" id="btnLocal">打开本地 .usm</button>
+    <input type="file" id="file" accept=".usm" hidden />
+    <button class="btn" id="btnProxy">代理设置</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="filter" style="flex-direction:column;gap:8px">
+      <input id="search" type="search" placeholder="搜索剧情 / 文件名…" />
+      <div class="seg" id="seg">
+        <button data-mode="direct" class="on">可在线播 <b id="nDirect">-</b></button>
+        <button data-mode="chunk">分块 <b id="nChunk">-</b></button>
+        <button data-mode="all">全部 <b id="nAll">-</b></button>
+      </div>
+    </div>
+    <div class="list" id="list"></div>
+  </aside>
+
+  <section class="stage">
+    <div class="head">
+      <h2 id="title">选一部开始</h2>
+      <div class="sub" id="sub"></div>
+      <div class="badge">
+        <span>已下载 <b id="dl">0</b> MB</span>
+        <span>缓冲 <b id="buf">0.0</b> s</span>
+      </div>
+    </div>
+
+    <div class="stagebox" id="stage">
+      <div class="empty" id="empty">
+        <div class="art">▶</div>
+        <h2>左侧是 354 部过场动画</h2>
+        <p>点条目 = 边下边解密边播放（需要先配一个代理，见右上角）；<br />
+           或者直接把本地 <code>.usm</code> 拖进窗口，完全离线可用。</p>
+      </div>
+      <div class="videoframe hidden" id="frame">
+        <video id="v" playsinline muted></video>
+        <div class="center-btn hidden" id="bigbtn">
+          <div style="text-align:center">
+            <div class="big">▶</div>
+            <div class="hint" id="hint">点击播放</div>
+          </div>
+        </div>
+        <div class="err hidden" id="err"></div>
+      </div>
+    </div>
+
+    <div class="ctrl">
+      <button id="play">暂停</button>
+      <span class="tm" id="tm">0:00 / 0:00</span>
+      <input class="seek" id="seek" type="range" min="0" max="1000" value="0" step="1" />
+      <input class="seek vol" id="vol" type="range" min="0" max="100" value="100" />
+      <div class="langs" id="langs"></div>
+      <button id="full">全屏</button>
+      <button id="exp">导出 MKV</button>
+    </div>
+  </section>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<div class="modal hidden" id="proxyModal">
+  <div class="box">
+    <h3>代理设置</h3>
+    <p>
+      官方 CDN（<code>autopatchcn.yuanshen.com</code>）<b>不允许跨域</b>，浏览器拿不到字节，
+      所以要一个支持 <code>Range</code> 的小代理。<br />
+      ⚠️ <code>*.workers.dev</code> 国内 DNS 污染，用不了。<br />
+      <b>Deno Deploy：</b>要在 <code>console.deno.com</code>（新版）建 Playground，
+      老地址 <code>dash.deno.com</code> 已停止新用户注册、没有粘贴入口。粘 <code>worker/deno-playground.ts</code>，
+      拿到 <code>https://xxx.deno.net</code>。<br />
+      <b>备选：</b>Cloudflare Pages 直接上传（<code>worker/pages-upload.zip</code> → <code>*.pages.dev</code>）<br />
+      默认已经填好作者部署的 <code>https://usm-proxy.xyh223.deno.net/?url=</code>，
+      想用自己的就覆盖掉；留空表示关闭代理（只能放本地文件）。
+    </p>
+    <input id="proxyInput" type="text" spellcheck="false" placeholder="https://xxx.workers.dev/?url=" />
+    <p id="proxyTest" style="margin:0"></p>
+    <div class="row">
+      <button class="btn" id="proxyClear">清空</button>
+      <button class="btn" id="proxyTestBtn">测试</button>
+      <button class="btn primary" id="proxySave">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="drop hidden" id="drop">松开即可播放本地 USM</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
